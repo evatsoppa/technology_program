@@ -1,70 +1,97 @@
-// ConsoleApplication1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
 #include <iostream>
+#include <string>
 
-
-struct Batterfly {
-	int id;
-	std::string species;
-	int count;
-	Batterfly* next;
+struct Node {
+    std::string name;
+    int age;
+    double salary;
+    Node* next;
 };
 
-void Add(Batterfly*& first,  std::string speices) {
-	Batterfly* tmp = first;
-	while (tmp->next != nullptr) {
-		tmp = tmp->next;
-	}
-	Batterfly* newbat = new Batterfly();
-	newbat->count = 0;
-	newbat->id = tmp->id+1;
-	newbat->species = speices;
-	newbat->next = nullptr;
-	tmp->next = newbat;
-}
-void PrintCollection(Batterfly*& butter) {
-	Batterfly* tmp = butter;
-	while (tmp->next != nullptr) {
-		tmp = tmp->next;
-		std::cout << tmp->species << std::endl;
-	}
-}
-int main()
-{
-	Batterfly* batter = new Batterfly();
-	bool flag = false;
-	int command;
-	std::string tmpname;
-	while (!flag)
-	{
-		std::cout << "Choose command" << std::endl;
-		std::cin >> command;
-		switch (command)
-		{
-		case 0:
-			flag = false;
-			break;
-		case 1:
-			std::cout << "Enter the name:" << std::endl;
-			std::cin >> tmpname;
-			Add(batter, tmpname);
-			break;
-		case 2:
-			PrintCollection(batter);
-		default:
-			break;
-		}
-	}
-}
+class LinkedList {
+private:
+    Node* head;
 
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
+public:
+    LinkedList() : head(nullptr) {}
 
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
+    void addToBeginning(std::string name, int age, double salary) {
+        Node* newNode = new Node{ name, age, salary, head };
+        head = newNode;
+    }
+
+    void addToEnd(std::string name, int age, double salary) {
+        Node* newNode = new Node{ name, age, salary, nullptr };
+
+        if (!head) {
+            head = newNode;
+            return;
+        }
+
+        Node* current = head;
+        while (current->next) {
+            current = current->next;
+        }
+
+        current->next = newNode;
+    }
+
+    // Добавление элемента после указанного элемента (по имени)
+    void addAfter(std::string targetName, std::string name, int age, double salary) {
+        Node* current = head;
+        while (current && current->name != targetName) {
+            current = current->next;
+        }
+
+        if (current) {
+            Node* newNode = new Node{ name, age, salary, current->next };
+            current->next = newNode;
+        }
+    }
+
+    // Удаление элемента по имени
+    void remove(std::string targetName) {
+        if (!head) return;
+
+        if (head->name == targetName) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            return;
+        }
+
+        Node* current = head;
+        while (current->next && current->next->name != targetName) {
+            current = current->next;
+        }
+
+        if (current->next) {
+            Node* temp = current->next;
+            current->next = current->next->next;
+            delete temp;
+        }
+    }
+
+    // Вывод списка на экран
+    void displayList() {
+        Node* current = head;
+        while (current) {
+            std::cout << "Name: " << current->name << ", Age: " << current->age << ", Salary: " << current->salary << std::endl;
+            current = current->next;
+        }
+    }
+};
+
+int main() {
+    LinkedList myList;
+
+    myList.addToBeginning("John", 25, 50000.0);
+    myList.addToEnd("Alice", 30, 60000.0);
+    myList.addAfter("John", "Bob", 28, 55000.0);
+    myList.displayList();
+
+    myList.remove("Alice");
+    myList.displayList();
+
+    return 0;
+}
