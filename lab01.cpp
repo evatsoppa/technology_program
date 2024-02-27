@@ -36,7 +36,6 @@ public:
         current->next = newNode;
     }
 
-    // Добавление элемента после указанного элемента (по имени)
     void addAfter(std::string targetName, std::string name, int age, double salary) {
         Node* current = head;
         while (current && current->name != targetName) {
@@ -49,7 +48,25 @@ public:
         }
     }
 
-    // Удаление элемента по имени
+    void addBefore(std::string targetName, std::string name, int age, double salary) {
+        if (!head) return;
+
+        if (head->name == targetName) {
+            addToBeginning(name, age, salary);
+            return;
+        }
+
+        Node* current = head;
+        while (current->next && current->next->name != targetName) {
+            current = current->next;
+        }
+
+        if (current->next) {
+            Node* newNode = new Node{ name, age, salary, current->next };
+            current->next = newNode;
+        }
+    }
+
     void remove(std::string targetName) {
         if (!head) return;
 
@@ -72,7 +89,6 @@ public:
         }
     }
 
-    // Вывод списка на экран
     void displayList() {
         Node* current = head;
         while (current) {
@@ -88,6 +104,7 @@ int main() {
     myList.addToBeginning("John", 25, 50000.0);
     myList.addToEnd("Alice", 30, 60000.0);
     myList.addAfter("John", "Bob", 28, 55000.0);
+    myList.addBefore("Alice", "Charlie", 35, 70000.0);
     myList.displayList();
 
     myList.remove("Alice");
