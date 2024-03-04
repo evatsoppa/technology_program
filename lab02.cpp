@@ -1,114 +1,192 @@
 #include <iostream>
-#include <string>
 
-struct Node {
-    std::string name;
-    int age;
-    double salary;
-    Node* next;
-};
-
-class LinkedList {
-private:
-    Node* head;
-
+class vect {
 public:
-    LinkedList() : head(nullptr) {}
+    int dim;
+    double* b;
+    int num;
+    static int count;
 
-    void addToBeginning(std::string name, int age, double salary) {
-        Node* newNode = new Node{ name, age, salary, head };
-        head = newNode;
+    vect(int d, double* arr) : dim(d), b(arr), num(++count) {
+        std::cout << "Created vector " << num << std::endl;
     }
 
-    void addToEnd(std::string name, int age, double salary) {
-        Node* newNode = new Node{ name, age, salary, nullptr };
-
-        if (!head) {
-            head = newNode;
-            return;
-        }
-
-        Node* current = head;
-        while (current->next) {
-            current = current->next;
-        }
-
-        current->next = newNode;
+    ~vect() {
+        std::cout << "Destroyed vector " << num << std::endl;
     }
 
-    void addAfter(std::string targetName, std::string name, int age, double salary) {
-        Node* current = head;
-        while (current && current->name != targetName) {
-            current = current->next;
+    // Операторы для векторной алгебры
+    vect operator+(const vect& other) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = b[i] + other.b[i];
         }
-
-        if (current) {
-            Node* newNode = new Node{ name, age, salary, current->next };
-            current->next = newNode;
-        }
+        return vect(dim, result);
     }
 
-    void addBefore(std::string targetName, std::string name, int age, double salary) {
-        if (!head) return;
-
-        if (head->name == targetName) {
-            addToBeginning(name, age, salary);
-            return;
+    vect operator-(const vect& other) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = b[i] - other.b[i];
         }
-
-        Node* current = head;
-        while (current->next && current->next->name != targetName) {
-            current = current->next;
-        }
-
-        if (current->next) {
-            Node* newNode = new Node{ name, age, salary, current->next };
-            current->next = newNode;
-        }
+        return vect(dim, result);
     }
 
-    void remove(std::string targetName) {
-        if (!head) return;
-
-        if (head->name == targetName) {
-            Node* temp = head;
-            head = head->next;
-            delete temp;
-            return;
+    vect operator-() const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = -b[i];
         }
-
-        Node* current = head;
-        while (current->next && current->next->name != targetName) {
-            current = current->next;
-        }
-
-        if (current->next) {
-            Node* temp = current->next;
-            current->next = current->next->next;
-            delete temp;
-        }
+        return vect(dim, result);
     }
 
-    void displayList() {
-        Node* current = head;
-        while (current) {
-            std::cout << "Name: " << current->name << ", Age: " << current->age << ", Salary: " << current->salary << std::endl;
-            current = current->next;
+    double operator*(const vect& other) const {
+        double result = 0.0;
+        for (int i = 0; i < dim; ++i) {
+            result += b[i] * other.b[i];
         }
+        return result;
+    }
+
+    vect operator*(double k) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = k * b[i];
+        }
+        return vect(dim, result);
+    }
+
+    vect& operator=(const vect& other) {
+        if (this != &other) {
+            delete[] b;
+            dim = other.dim;
+            b = new double[dim];
+            for (int i = 0; i < dim; ++i) {
+                b[i] = other.b[i];
+            }
+        }
+        return *this;
     }
 };
+
+int vect::count = 0;
+
+class matr {
+public:
+    int dim;
+    double* a;
+    int num;
+    static int count;
+
+    matr(int d, double* arr) : dim(d), a(arr), num(++count) {
+        std::cout << "Created matrix " << num << std::endl;
+    }
+
+    ~matr() {
+        std::cout << "Destroyed matrix " << num << std::endl;
+    }
+
+    // Операторы для векторной алгебры
+    matr operator+(const matr& other) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = a[i] + other.a[i];
+        }
+        return matr(dim, result);
+    }
+
+    matr operator-(const matr& other) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = a[i] - other.a[i];
+        }
+        return matr(dim, result);
+    }
+
+    matr operator-() const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = -a[i];
+        }
+        return matr(dim, result);
+    }
+
+    matr operator*(const matr& other) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = a[i] * other.a[i];
+        }
+        return matr(dim, result);
+    }
+
+    matr operator*(double k) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = k * a[i];
+        }
+        return matr(dim, result);
+    }
+
+    matr& operator=(const matr& other) {
+        if (this != &other) {
+            delete[] a;
+            dim = other.dim;
+            a = new double[dim];
+            for (int i = 0; i < dim; ++i) {
+                a[i] = other.a[i];
+            }
+        }
+        return *this;
+    }
+
+    vect operator*(const vect& v) const {
+        double* result = new double[dim];
+        for (int i = 0; i < dim; ++i) {
+            result[i] = 0.0;
+            for (int j = 0; j < dim; ++j) {
+                result[i] += a[i * dim + j] * v.b[j];
+            }
+        }
+        return vect(dim, result);
+    }
+};
+
+int matr::count = 0;
 
 int main() {
-    LinkedList myList;
+    double arr1[] = {1.0, 2.0, 3.0};
+    double arr2[] = {4.0, 5.0, 6.0};
+    double arr3[] = {7.0, 8.0, 9.0};
 
-    myList.addToBeginning("John", 25, 50000.0);
-    myList.addToEnd("Alice", 30, 60000.0);
-    myList.addAfter("John", "Bob", 28, 55000.0);
-    myList.addBefore("Alice", "Charlie", 35, 70000.0);
-    myList.displayList();
+    vect v1(3, arr1);
+    vect v2(3, arr2);
+    matr m1(3, arr1);
+    matr m2(3, arr2);
 
-    myList.remove("Alice");
-    myList.displayList();
+    vect result1 = v1 + v2;
+    vect result2 = v1 - v2;
+    vect result3 = -v1;
+    double result4 = v1 * v2;
+    vect result5 = 2.0 * v1;
+    v1 = v2;
+
+    matr result6 = m1 + m2;
+    matr result7 = m1 - m2;
+    matr result8 = -m1;
+    matr result9 = m1 * m2;
+    matr result10 = 2.0 * m1;
+    m1 = m2;
+
+    vect result11 = m1 * v1;
+
+    delete[] result1.b;
+    delete[] result2.b;
+    delete[] result3.b;
+    delete[] result6.a;
+    delete[] result7.a;
+    delete[] result8.a;
+    delete[] result9.a;
+    delete[] result10.a;
 
     return 0;
 }
