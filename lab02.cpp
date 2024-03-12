@@ -1,88 +1,97 @@
 #include <iostream>
 
-// Класс для векторов
-class Vector {
+class vect {
 public:
-    int dim;          // Размерность вектора
-    double* elements;  // Массив элементов вектора
-    int num;          // Номер вектора
-    static int count;  // Счетчик созданных векторов
+    int dim;
+    double* b;
+    int num;
+    static int count;
 
-    // Конструктор создает вектор
-    Vector(int dimension, double* array) : dim(dimension), elements(array), num(++count) {
+    // Конструктор для вектора
+    vect(int d, double* arr) : dim(d), b(arr), num(++count) {
         std::cout << "Создан вектор " << num << std::endl;
     }
 
-    // Деструктор уничтожает вектор
-    ~Vector() {
+    // Деструктор для вектора
+    ~vect() {
         std::cout << "Уничтожен вектор " << num << std::endl;
     }
 
     // Операторы векторной алгебры
-    Vector operator+(const Vector& other) const;
-    Vector operator-(const Vector& other) const;
-    Vector operator-() const;
-    double operator*(const Vector& other) const;
-    Vector operator*(double scalar) const;
-    Vector& operator=(const Vector& other);
+    vect operator+(const vect& other) const;
+    vect operator-(const vect& other) const;
+    vect operator-() const;
+    double operator*(const vect& other) const;
+    vect operator*(double k) const;
+    vect& operator=(const vect& other);
 };
 
-// Статическая переменная инициализируется вне класса
-int Vector::count = 0;
+int vect::count = 0;
 
-// Класс для матриц
-class Matrix {
+class matr {
 public:
-    int dim;          // Размерность матрицы
-    double* elements;  // Массив элементов матрицы
-    int num;          // Номер матрицы
-    static int count;  // Счетчик созданных матриц
+    int dim;
+    double* a;
+    int num;
+    static int count;
 
-    // Конструктор создает матрицу
-    Matrix(int dimension, double* array) : dim(dimension), elements(array), num(++count) {
+    // Конструктор для матрицы
+    matr(int d, double* arr) : dim(d), a(arr), num(++count) {
         std::cout << "Создана матрица " << num << std::endl;
     }
 
-    // Деструктор уничтожает матрицу
-    ~Matrix() {
+    // Деструктор для матрицы
+    ~matr() {
         std::cout << "Уничтожена матрица " << num << std::endl;
     }
 
     // Операторы векторной алгебры для матрицы
-    Matrix operator+(const Matrix& other) const;
-    Matrix operator-(const Matrix& other) const;
-    Matrix operator-() const;
-    Matrix operator*(const Matrix& other) const;
-    Matrix operator*(double scalar) const;
-    Matrix& operator=(const Matrix& other);
+    matr operator+(const matr& other) const;
+    matr operator-(const matr& other) const;
+    matr operator-() const;
+    matr operator*(const matr& other) const;
+    matr operator*(double k) const;
+    matr& operator=(const matr& other);
 
     // Оператор умножения матрицы на вектор
-    Vector operator*(const Vector& vector) const;
+    vect operator*(const vect& vector) const;
 };
 
-// Статическая переменная инициализируется вне класса
-int Matrix::count = 0;
+int matr::count = 0;
 
-// Главная функция, где происходит работа с векторами и матрицами
 int main() {
-    // Создаем векторы
     double arr1[] = {1.0, 2.0, 3.0};
     double arr2[] = {4.0, 5.0, 6.0};
-    Vector vector1(3, arr1);
-    Vector vector2(3, arr2);
-
-    // Создаем матрицы
     double arr3[] = {7.0, 8.0, 9.0};
-    Matrix matrix1(3, arr1);
-    Matrix matrix2(3, arr3);
+
+    // Создаем векторы и матрицы
+    vect vector1(3, arr1);
+    vect vector2(3, arr2);
+    matr matrix1(3, arr1);
+    matr matrix2(3, arr3);
 
     // Выполняем операции векторной алгебры
-    Vector resultVector = vector1 + vector2;
-    Matrix resultMatrix = matrix1 + matrix2;
+    vect resultVector = vector1 + vector2;
+    vect negatedVector = -vector1;
+    double dotProduct = vector1 * vector2;
+    vect scaledVector = vector1 * 2.5;
+    vector1 = vector2;
+
+    matr resultMatrix = matrix1 + matrix2;
+    matr negatedMatrix = -matrix1;
+    matr elementwiseProduct = matrix1 * matrix2;
+    matr scaledMatrix = matrix1 * 1.5;
+    matrix1 = matrix2;
+
+    vect matrixVectorProduct = matrix1 * vector1;
 
     // Освобождаем память
-    delete[] resultVector.elements;
-    delete[] resultMatrix.elements;
+    delete[] resultVector.b;
+    delete[] negatedVector.b;
+    delete[] resultMatrix.a;
+    delete[] negatedMatrix.a;
+    delete[] elementwiseProduct.a;
+    delete[] scaledMatrix.a;
 
     return 0;
 }
