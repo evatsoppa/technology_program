@@ -1,17 +1,17 @@
 #include <iostream>
 #include <cmath>
 
-// Базовый абстрактный класс для геометрической фигуры
+// класс для геом. фигуры
 class Shape {
 public:
-    virtual void draw() const = 0;           // Метод для отображения фигуры
-    virtual void erase() = 0;                // Метод для удаления фигуры
-    virtual void move(double dx, double dy); // Метод для перемещения фигуры
-    virtual void rotate(double angle) = 0;   // Метод для поворота фигуры
-    virtual ~Shape() {}                      // Виртуальный деструктор
+    virtual void draw() const = 0;           // метод для изображения фигуры
+    virtual void erase() = 0;                //           удаления фигуры
+    virtual void move(double dx, double dy); //           перемещения фигуры
+    virtual void rotate(double angle) = 0;   //           поворота фигуры
+    virtual ~Shape() {}                      // вирт. деструктор
 };
 
-// Класс для точки (наследуется от Shape)
+// класс для точки
 class Point : public Shape {
 protected:
     double x;
@@ -21,27 +21,27 @@ public:
     Point(double xCoord, double yCoord) : x(xCoord), y(yCoord) {}
 
     void draw() const override {
-        std::cout << "Точка (" << x << ", " << y << ")" << std::endl;
+        std::cout << "точка (" << x << ", " << y << ")" << std::endl;
     }
 
     void erase() override {
-        std::cout << "Удаление точки (" << x << ", " << y << ")" << std::endl;
-        // В данном примере просто выводим сообщение об удалении точки
+        std::cout << "удал. точки (" << x << ", " << y << ")" << std::endl;
+        // вывела сообщение об удалении точки
     }
 
     void move(double dx, double dy) override {
         x += dx;
         y += dy;
-        std::cout << "Перемещение точки на (" << dx << ", " << dy << "). Новые координаты: (" << x << ", " << y << ")" << std::endl;
+        std::cout << "перемещ. точки на (" << dx << ", " << dy << ").  координаты новые: (" << x << ", " << y << ")" << std::endl;
     }
 
     void rotate(double angle) override {
-        // Для точки поворот не имеет смысла, поэтому метод остается пустым
-        std::cout << "Поворот точки на " << angle << " градусов (нет эффекта для точки)." << std::endl;
+        // поворот можно не делать(нет смысла)
+        std::cout << "поворот точки на " << angle << " град." << std::endl;
     }
 };
 
-// Класс для линии (наследуется от Shape)
+// класс для линии 
 class Line : public Shape {
 protected:
     Point startPoint;
@@ -51,27 +51,27 @@ public:
     Line(const Point& start, const Point& end) : startPoint(start), endPoint(end) {}
 
     void draw() const override {
-        std::cout << "Линия от (" << startPoint.x << ", " << startPoint.y << ") до (" << endPoint.x << ", " << endPoint.y << ")" << std::endl;
+        std::cout << "линия от (" << startPoint.x << ", " << startPoint.y << ") до (" << endPoint.x << ", " << endPoint.y << ")" << std::endl;
     }
 
     void erase() override {
-        std::cout << "Удаление линии от (" << startPoint.x << ", " << startPoint.y << ") до (" << endPoint.x << ", " << endPoint.y << ")" << std::endl;
-        // В данном примере просто выводим сообщение об удалении линии
+        std::cout << "удал. линии от (" << startPoint.x << ", " << startPoint.y << ") до (" << endPoint.x << ", " << endPoint.y << ")" << std::endl;
+        // удалила линию
     }
 
     void move(double dx, double dy) override {
         startPoint.move(dx, dy);
         endPoint.move(dx, dy);
-        std::cout << "Перемещение линии на (" << dx << ", " << dy << ")." << std::endl;
+        std::cout << "перемещ. линии на (" << dx << ", " << dy << ")." << std::endl;
     }
 
     void rotate(double angle) override {
-        // Для линии также не реализуем поворот в данном примере
-        std::cout << "Поворот линии на " << angle << " градусов (нет эффекта для линии)." << std::endl;
+        // также нет смысла, как и с точкой
+        std::cout << "поворот линии на " << angle << " градусов" << std::endl;
     }
 };
 
-// Класс для квадрата (наследуется от Shape)
+// класс для квадрата 
 class Square : public Shape {
 protected:
     Point topLeft;
@@ -81,37 +81,34 @@ public:
     Square(const Point& topLeftCorner, double length) : topLeft(topLeftCorner), sideLength(length) {}
 
     void draw() const override {
-        std::cout << "Квадрат с верхним левым углом в точке (" << topLeft.x << ", " << topLeft.y << ") и длиной стороны " << sideLength << std::endl;
+        std::cout << "квадрат с верхним левым углом в точке (" << topLeft.x << ", " << topLeft.y << ") и длиной стороны " << sideLength << std::endl;
     }
 
     void erase() override {
-        std::cout << "Удаление квадрата с верхним левым углом в точке (" << topLeft.x << ", " << topLeft.y << ")" << std::endl;
-        // В данном примере просто выводим сообщение об удалении квадрата
+        std::cout << "удал. квадрата с верхним левым углом в точке (" << topLeft.x << ", " << topLeft.y << ")" << std::endl;
+        // удалила квадрат
     }
 
     void move(double dx, double dy) override {
         topLeft.move(dx, dy);
-        std::cout << "Перемещение квадрата на (" << dx << ", " << dy << ")." << std::endl;
+        std::cout << "перемещ. квадрата на (" << dx << ", " << dy << ")." << std::endl;
     }
 
     void rotate(double angle) override {
-        // Реализация поворота квадрата
-        std::cout << "Поворот квадрата на " << angle << " градусов." << std::endl;
+        std::cout << "поворот квадрата на " << angle << " градусов." << std::endl;
     }
 };
 
-// Основная функция программы
 int main() {
-    // Создание объектов и использование методов
 
-    // Создание и использование объекта Point
+    // точка
     Point point(3.0, 4.0);
     point.draw();
     point.move(1.0, -2.0);
 
     std::cout << std::endl;
 
-    // Создание и использование объекта Line
+    // линия
     Point startPoint(1.0, 1.0);
     Point endPoint(5.0, 5.0);
     Line line(startPoint, endPoint);
@@ -120,7 +117,7 @@ int main() {
 
     std::cout << std::endl;
 
-    // Создание и использование объекта Square
+    // квадрат
     Point squareTopLeft(2.0, 2.0);
     Square square(squareTopLeft, 4.0);
     square.draw();
