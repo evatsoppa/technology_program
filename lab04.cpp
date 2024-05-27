@@ -1,206 +1,165 @@
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
 
-class vect;
-
-class matr {
-public:
-    int dim;
-    double* a;
-    int num;
-    static int count;
-
-    matr(int d) : dim(d), num(count++) {
-        a = new double[dim * dim];
-        std::cout << "создала матрицу " << num << " размерности " << dim << "x" << dim << std::endl;
-    }
-
-    matr(const matr& other) : dim(other.dim), num(count++) {
-        a = new double[dim * dim];
-        for (int i = 0; i < dim * dim; i++) {
-            a[i] = other.a[i];
-        }
-        std::cout << "скопировала матрицу " << other.num << " в матрицу " << num << std::endl;
-    }
-
-    ~matr() {
-        delete[] a;
-        std::cout << "Уничтожена матрица " << num << std::endl;
-    }
-
-    matr operator+(const matr& other) const;
-    matr operator*(const matr& other) const;
-    matr& operator=(const matr& other);
-    vect operator*(const vect& v) const;
-
-    friend std::ostream& operator<<(std::ostream& os, const matr& m);
+// информация о студенте
+struct Student {
+    int id;
+    std::string name;
+    int age;
+    std::string major;
+    double gpa;
 };
 
-class vect {
+// управление базой студентов
+class StudentDB {
+private:
+    std::vector<Student> students;  // записи о студентах
+    const std::string filename = "students_db.txt";  //  файл
+
 public:
-    int dim;
-    double* b;
-    int num;
-    static int count;
-
-    vect(int d) : dim(d), num(count++) {
-        b = new double[dim];
-        std::cout << "создала вектор " << num << " размерности " << dim << std::endl;
+    // загружает данные из файла
+    StudentDB() {
+        loadFromFile();
     }
 
-    vect(const vect& other) : dim(other.dim), num(count++) {
-        b = new double[dim];
-        for (int i = 0; i < dim; i++) {
-            b[i] = other.b[i];
+    // сохраняет данные в файл 
+    ~StudentDB() {
+        saveToFile();
+    }
+
+    // загрузка данных
+    void loadFromFile() {
+        std::ifstream file(filename);
+        if (!file.is_open()) return;
+
+        std::string line;
+        while (getline(file, line)) {
+            std::stringstream ss(line);
+            Student student;
+            ss >> student.id >> student.name >> student.age >> student.major >> student.gpa;
+            students.push_back(student);
         }
-        std::cout << "скопирован вектор " << other.num << " вектор " << num << std::endl;
+        file.close();
     }
 
-    ~vect() {
-        delete[] b;
-        std::cout << "уничтожен вектор " << num << std::endl;
-    }
-
-    vect operator+(const vect& other) const;
-    vect operator*(double k) const;
-    vect& operator=(const vect& other);
-
-    friend std::ostream& operator<<(std::ostream& os, const vect& v);
-    friend class matr; // Дружественный класс для доступа к приватным членам
-};
-
-int vect::count = 0;
-int matr::count = 0;
-
-// Определения методов класса vect
-
-vect vect::operator+(const vect& other) const {
-    vect result(dim);
-    for (int i = 0; i < dim; i++) {
-        result.b[i] = b[i] + other.b[i];
-    }
-    std::cout << "выполнено слож. векторов " << num << " и " << other.num << " вектор " << result.num << std::endl;
-    return result;
-}
-
-vect vect::operator*(double k) const {
-    vect result(dim);
-    for (int i = 0; i < dim; i++) {
-        result.b[i] = k * b[i];
-    }
-    std::cout << "выполнено умнож. вектора " << num << " на скаляр " << k << " вектор " << result.num << std::endl;
-    return result;
-}
-
-vect& vect::operator=(const vect& other) {
-    if (this != &other) {
-        delete[] b;
-        dim = other.dim;
-        b = new double[dim];
-        for (int i = 0; i < dim; i++) {
-            b[i] = other.b[i];
+    // сохранение
+    void saveToFile() {
+        std::ofstream file(filename);
+        for (const auto& student : students) {
+            file << student.id << " " << student.name << " " << student.age << " " 
+                 << student.major << " " << student.gpa << "\n";
         }
+        file.close();
     }
-    std::cout << "выполнено присв. вектору " << other.num << " вектор " << num << std::endl;
-    return *this;
-}
 
-std::ostream& operator<<(std::ostream& os, const vect& v) {
-    os << "Вектор " << v.num << " (" << v.dim << "-мерный): ";
-    for (int i = 0; i < v.dim; i++) {
-        os << v.b[i] << " ";
+    // добавила студента
+    void addStudent(const Student& student) {
+        students.push_back(student);
     }
-    return os;
-}
 
-// Определения методов класса matr
-
-matr matr::operator+(const matr& other) const {
-    matr result(dim);
-    for (int i = 0; i < dim * dim; i++) {
-        result.a[i] = a[i] + other.a[i];
-    }
-    std::cout << "Выполнено сложение матриц " << num << " и " << other.num << " матрица " << result.num << std::endl;
-    return result;
-}
-
-matr matr::operator*(const matr& other) const {
-    matr result(dim);
-    for (int i = 0; i < dim; i++) {
-        for (int j = 0; j < dim; j++) {
-            result.a[i * dim + j] = 0;
-            for (int k = 0; k < dim; k++) {
-                result.a[i * dim + j] += a[i * dim + k] * other.a[k * dim + j];
+    // редактор
+    void editStudent(int id, const Student& updatedStudent) {
+        for (auto& student : students) {
+            if (student.id == id) {
+                student = updatedStudent;
+                break;
             }
         }
     }
-    std::cout << "выполнено умнож. матрицы " << num << " на матрицу " << other.num << " матрица " << result.num << std::endl;
-    return result;
-}
 
-vect matr::operator*(const vect& v) const {
-    vect result(dim);
-    for (int i = 0; i < dim; i++) {
-        result.b[i] = 0;
-        for (int j = 0; j < dim; j++) {
-            result.b[i] += a[i * dim + j] * v.b[j];
-}
+    // удалить 
+    void deleteStudent(int id) {
+        students.erase(std::remove_if(students.begin(), students.end(), [id](const Student& student) { return student.id == id; }), students.end());
     }
-    std::cout << "выполнено умнож. матрицы " << num << " на вектор " << v.num << " вектор " << result.num << std::endl;
-    return result;
-}
 
-matr& matr::operator=(const matr& other) {
-    if (this != &other) {
-        delete[] a;
-        dim = other.dim;
-        a = new double[dim * dim];
-        for (int i = 0; i < dim * dim; i++) {
-            a[i] = other.a[i];
+    // поиск по айди
+    void searchStudent(int id) {
+        for (const auto& student : students) {
+            if (student.id == id) {
+                std::cout << "ID: " << student.id << ", Name: " << student.name << ", Age: " << student.age 
+                          << ", Major: " << student.major << ", GPA: " << student.gpa << "\n";
+                return;
+            }
+        }
+        std::cout << "Student not found.\n";
+    }
+
+    // список всех студентов
+    void listStudents() {
+        for (const auto& student : students) {
+            std::cout << "ID: " << student.id << ", Name: " << student.name << ", Age: " << student.age 
+                      << ", Major: " << student.major << ", GPA: " << student.gpa << "\n";
         }
     }
-    std::cout << "выполнено присв. матрице " << other.num << " матрица " << num << std::endl;
-    return *this;
-}
-
-std::ostream& operator<<(std::ostream& os, const matr& m) {
-    os << "Матрица " << m.num << " (" << m.dim << "x" << m.dim << "): " << std::endl;
-    for (int i = 0; i < m.dim; i++) {
-        for (int j = 0; j < m.dim; j++) {
-            os << m.a[i * m.dim + j] << " ";
-        }
-        os << std::endl;
-    }
-    return os;
-}
+};
 
 int main() {
-    vect v1(3);
-    v1.b[0] = 1.0;
-    v1.b[1] = 2.0;
-    v1.b[2] = 3.0;
+    StudentDB db;  
+    int choice;
 
-    vect v2(v1);
+    do {
+        std::cout << "\nSimple Student Registry Database\n";
+        std::cout << "1. Add Student\n";
+        std::cout << "2. Edit Student\n";
+        std::cout << "3. Delete Student\n";
+        std::cout << "4. Search Student\n";
+        std::cout << "5. List All Students\n";
+        std::cout << "6. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
 
-    std::cout << v1 << std::endl;
-    std::cout << v2 << std::endl;
-
-    vect v3 = v1 + v2;
-    std::cout << v3 << std::endl;
-
-    matr m1(2);
-    m1.a[0] = 1.0; m1.a[1] = 2.0;
-    m1.a[2] = 3.0; m1.a[3] = 4.0;
-
-    matr m2(m1);
-
-    std::cout << m1 << std::endl;
-    std::cout << m2 << std::endl;
-
-    matr m3 = m1 + m2;
-    std::cout << m3 << std::endl;
-
-    vect v4 = m1 * v1;
-    std::cout << v4 << std::endl;
+        switch (choice) {
+            case 1: {
+                Student student;
+                std::cout << "Enter ID: "; std::cin >> student.id;
+                std::cout << "Enter Name: "; std::cin >> student.name;
+                std::cout << "Enter Age: "; std::cin >> student.age;
+                std::cout << "Enter Major: "; std::cin >> student.major;
+                std::cout << "Enter GPA: "; std::cin >> student.gpa;
+                db.addStudent(student);
+                break;
+            }
+            case 2: {
+                int id;
+                Student student;
+                std::cout << "Enter ID of student to edit: "; std::cin >> id;
+std::cout << "Enter new Name: "; std::cin >> student.name;
+                std::cout << "Enter new Age: "; std::cin >> student.age;
+                std::cout << "Enter new Major: "; std::cin >> student.major;
+                std::cout << "Enter new GPA: "; std::cin >> student.gpa;
+                student.id = id;
+                db.editStudent(id, student);
+                break;
+            }
+            case 3: {
+                int id;
+                std::cout << "Enter ID of student to delete: "; std::cin >> id;
+                db.deleteStudent(id);
+                break;
+            }
+            case 4: {
+                int id;
+                std::cout << "Enter ID of student to search: "; std::cin >> id;
+                db.searchStudent(id);
+                break;
+            }
+            case 5: {
+                db.listStudents();
+                break;
+            }
+            case 6: {
+                std::cout << "Exiting...\n";
+                break;
+            }
+            default: {
+                std::cout << "Invalid choice! Please try again.\n";
+                break;
+            }
+        }
+    } while (choice != 6);
 
     return 0;
 }
